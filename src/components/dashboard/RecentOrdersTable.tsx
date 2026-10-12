@@ -1,11 +1,23 @@
 // src/components/dashboard/RecentOrdersTable.tsx
 import { Order } from '@/types';
-import { Card, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, Badge, Button } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import {
+  Card,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+  Badge,
+  Button,
+} from '@/components/ui';
 
 interface RecentOrdersTableProps {
   orders: Order[];
   loading: boolean;
+  showAll: boolean;
+  onToggleShowAll: () => void;
+  onRecordUse: () => void;
 }
 
 const statusColors = {
@@ -15,34 +27,62 @@ const statusColors = {
   processing: 'info',
 } as const;
 
-export default function RecentOrdersTable({ orders, loading }: RecentOrdersTableProps) {
+export default function RecentOrdersTable({
+  orders,
+  loading,
+  showAll,
+  onToggleShowAll,
+  onRecordUse,
+}: RecentOrdersTableProps) {
   if (loading) {
     return (
       <Card>
-        <div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-700 rounded" />
+        <div className="h-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
       </Card>
     );
   }
 
   if (!orders.length) {
     return (
-      <Card className="text-center py-12">
+      <Card className="py-12 text-center">
         <p className="text-gray-500 dark:text-gray-400">No orders found</p>
       </Card>
     );
   }
 
+  const visibleOrders = showAll ? orders : orders.slice(0, 5);
+
   return (
     <Card className="overflow-hidden">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Orders</h3>
-        <Button variant="ghost" size="sm">
-          View All →
-        </Button>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Recent Orders
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Showing {visibleOrders.length} of {orders.length} sample orders
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-1">
+          <Button variant="ghost" size="sm" onClick={onRecordUse}>
+            Record use
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              onToggleShowAll();
+              onRecordUse();
+            }}
+            aria-expanded={showAll}
+          >
+            {showAll ? 'Show recent' : 'View all'} →
+          </Button>
+        </div>
       </div>
-      
-      <div className="overflow-x-auto -mx-6 px-6">
-        <Table>
+
+      <div className="-mx-6 overflow-x-auto px-6">
+        <Table hoverable>
           <TableHeader>
             <TableRow>
               <TableHead>Customer</TableHead>
@@ -52,7 +92,7 @@ export default function RecentOrdersTable({ orders, loading }: RecentOrdersTable
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.map((order) => (
+            {visibleOrders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell>{order.customer}</TableCell>
                 <TableCell>{order.date}</TableCell>
@@ -69,6 +109,9 @@ export default function RecentOrdersTable({ orders, loading }: RecentOrdersTable
           </TableBody>
         </Table>
       </div>
+      <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
+        Customer and order details are generated mock data for this demo.
+      </p>
     </Card>
   );
 }
