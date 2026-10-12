@@ -1,12 +1,14 @@
 {
-  "name": "customizable-dashboard-tailwind",
+  "name": "lnasf-adaptive-customizable-dashboard",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test:lnasf": "tsc -p tsconfig.tests.json && node --test .test-build/tests/dashboard-learning.test.js"
   },
   "dependencies": {
     "clsx": "^2.1.1",
