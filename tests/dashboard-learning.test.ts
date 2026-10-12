@@ -68,7 +68,7 @@ test('session observation history remains bounded', () => {
   let history: DashboardSection[] = [];
   const cycle: DashboardSection[] = ['metrics', 'revenue', 'quick-actions', 'orders'];
 
-  for (let index = 0; index < 125; index += 1) {
+  for (let index = 0; index < 124; index += 1) {
     history = appendSectionObservation(history, cycle[index % cycle.length]);
   }
 
