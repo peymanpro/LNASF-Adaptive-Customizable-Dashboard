@@ -81,7 +81,7 @@ export function makeServer({ environment = 'development' } = {}) {
         );
         
         return {
-          orders: sorted.slice(0, 5),
+          orders: sorted,
           total: orders.length,
         };
       });
