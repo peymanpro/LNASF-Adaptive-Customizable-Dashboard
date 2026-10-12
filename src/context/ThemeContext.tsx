@@ -1,6 +1,6 @@
 // src/context/ThemeContext.tsx
 import React, { createContext, useContext, useEffect } from 'react';
-import { Theme, ThemeMode, AvailableColor } from '@/types';
+import { Theme, AvailableColor } from '@/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 // رنگ‌های RGB برای هر پالت رنگی
