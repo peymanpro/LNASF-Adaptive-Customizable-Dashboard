@@ -1,8 +1,12 @@
 // src/components/theme/ThemeCustomizer.tsx
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { Button, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
+
+const subscribeToNothing = () => () => undefined;
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 interface ThemeCustomizerProps {
   open?: boolean;
@@ -24,7 +28,11 @@ export default function ThemeCustomizer({
     isDarkMode,
   } = useTheme();
   const [internalOpen, setInternalOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribeToNothing,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
   const isOpen = open ?? internalOpen;
 
   const setOpen = (next: boolean) => {
@@ -34,10 +42,6 @@ export default function ThemeCustomizer({
       setInternalOpen(next);
     }
   };
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted) {
     return <div className="fixed bottom-6 right-6 h-14 w-14" />;
