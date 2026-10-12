@@ -1,6 +1,6 @@
 // src/components/dashboard/RevenueChart.tsx
 import { useEffect, useState } from 'react';
-import { Card } from '@/components/ui';
+import { Button, Card } from '@/components/ui';
 
 interface ChartData {
   labels: string[];
@@ -12,19 +12,30 @@ interface ChartData {
   }[];
 }
 
-export default function RevenueChart() {
+interface RevenueChartProps {
+  onRecordUse?: () => void;
+}
+
+export default function RevenueChart({ onRecordUse }: RevenueChartProps) {
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/chart-data')
-      .then(res => res.json())
-      .then(data => {
-        setChartData(data);
-        setLoading(false);
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Could not load chart data.');
+        }
+        return response.json();
       })
-      .catch(err => {
-        console.error('Error fetching chart data:', err);
+      .then((data: ChartData) => {
+        setChartData(data);
+      })
+      .catch((error: unknown) => {
+        console.error('Error fetching chart data:', error);
+        setChartData(null);
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, []);
@@ -33,44 +44,63 @@ export default function RevenueChart() {
     return <Card className="h-80 animate-pulse bg-gray-200 dark:bg-gray-700" padding="none" />;
   }
 
-  if (!chartData) {
-    return (
-      <Card className="h-80 flex items-center justify-center">
-        <p className="text-gray-500 dark:text-gray-400">No data available</p>
-      </Card>
-    );
-  }
-
-  const maxValue = Math.max(...chartData.datasets[0].data);
+  const values = chartData?.datasets[0]?.data ?? [];
+  const maxValue = Math.max(1, ...values);
 
   return (
-    <Card>
-      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Revenue Overview</h3>
-      <div className="h-64 flex items-end justify-between gap-2">
-        {chartData.labels.map((label: string, index: number) => {
-          const value = chartData.datasets[0].data[index];
-          const height = (value / maxValue) * 100;
-          return (
-            <div key={index} className="flex-1 flex flex-col items-center gap-2">
-              <div 
-                className="w-full bg-primary-500 dark:bg-primary-600 rounded-t transition-all duration-300 hover:bg-primary-600 dark:hover:bg-primary-500 relative group"
-                style={{ height: `${height}%` }}
-              >
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                  ${value}
+    <Card className="h-full">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          Revenue Overview
+        </h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onRecordUse}
+          title="Record an explicit section-use signal for the demo"
+        >
+          Record use
+        </Button>
+      </div>
+
+      {!chartData || values.length === 0 ? (
+        <div className="flex h-64 items-center justify-center">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            No chart data available. The chart uses generated development data.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="flex h-64 items-end justify-between gap-2">
+            {chartData.labels.map((label, index) => {
+              const value = values[index] ?? 0;
+              const height = (value / maxValue) * 100;
+
+              return (
+                <div key={label} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
+                  <div
+                    className="group relative w-full rounded-t bg-primary-500 transition-colors duration-300 hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-500"
+                    style={{ height: `${height}%` }}
+                    aria-label={`${label}: ${value}`}
+                  >
+                    <div className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+                      ${value}
+                    </div>
+                  </div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">{label}</span>
                 </div>
-              </div>
-              <span className="text-xs text-gray-600 dark:text-gray-400">
-                {label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-        <span className="inline-block w-3 h-3 bg-primary-500 rounded-full mr-2"></span>
-        {chartData.datasets[0].label}
-      </div>
+              );
+            })}
+          </div>
+          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+            <span className="mr-2 inline-block h-3 w-3 rounded-full bg-primary-500" />
+            {chartData.datasets[0].label}
+          </div>
+          <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+            Generated sample values; not connected to a production analytics system.
+          </p>
+        </>
+      )}
     </Card>
   );
 }
