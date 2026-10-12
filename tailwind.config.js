@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+// Tailwind loads this config as CommonJS; keep the native require for compatibility.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { fontFamily } = require('tailwindcss/defaultTheme')
 
 module.exports = {
