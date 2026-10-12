@@ -1,7 +1,11 @@
 // src/components/ui/Modal.tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
+
+const subscribeToNothing = () => () => undefined;
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 export interface ModalProps {
   isOpen: boolean;
@@ -20,12 +24,11 @@ const Modal = ({
   size = 'md',
   closeOnClickOutside = true,
 }: ModalProps) => {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
+  const mounted = useSyncExternalStore(
+    subscribeToNothing,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
 
   useEffect(() => {
     if (isOpen) {
