@@ -24,7 +24,6 @@ export default function DashboardLearningPanel({
   onResetLearning,
   onResetLayout,
 }: DashboardLearningPanelProps) {
-  const canApply = prediction?.gate === 'ready';
   const recentHistory = history.slice(-8);
 
   return (
