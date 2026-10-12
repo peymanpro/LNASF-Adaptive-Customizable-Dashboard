@@ -8,7 +8,6 @@ import DashboardLearningPanel from '@/components/lnasf/DashboardLearningPanel';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useDashboardLearning } from '@/hooks/useDashboardLearning';
 import {
-  DASHBOARD_SECTION_LABELS,
   DEFAULT_DASHBOARD_ORDER,
   moveSectionToFront,
   normalizeDashboardOrder,
